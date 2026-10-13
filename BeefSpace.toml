@@ -1,0 +1,11 @@
+FileVersion = 1
+Projects = {TesseraHub = {Path = "."}, Tessera = {Path = "/home/zerker24/BeefProjects/Tessera/Engine"}}
+
+[Workspace]
+StartupProject = "TesseraHub"
+
+[Configs.Debug.Win64]
+Toolset = "LLVM"
+
+[Configs.Release.Win64]
+Toolset = "LLVM"

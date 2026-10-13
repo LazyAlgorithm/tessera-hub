@@ -1,0 +1,18 @@
+scene "Hub"
+env skyZenith 0.047 0.063 0.094 1
+env skyHorizon 0.047 0.063 0.094 1
+env skyGround 0.047 0.063 0.094 1
+env ambientSky 0.5 0.5 0.5 1
+env ambientGround 0.5 0.5 0.5 1
+env fogColor 0.047 0.063 0.094 1
+env ambientIntensity 0.5
+env fogDensity 0
+env exposure 1.0
+env shadowDistance 10
+object 1 parent 0 active 1 name "Hub"
+transform 0 0 0 0 0 0 1 1 1 1
+component Tessera.Camera enabled 1
+component Tessera.UIDocument enabled 1
+field document "UI/hub.tui"
+field referenceHeight 760
+component TesseraHub.HubUi enabled 1

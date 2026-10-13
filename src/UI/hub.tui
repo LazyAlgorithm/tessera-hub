@@ -1,0 +1,148 @@
+<panel id="hub">
+	<!-- The list of games and the engine down the left. -->
+	<panel id="sidebar">
+		<panel id="brand">
+			<image id="brandmark" src="UI/icon_tessera.png" />
+			<panel id="brandtext">
+				<text id="brandname">TESSERA HUB</text>
+				<text id="brandsub">Games and the engine, kept up to date</text>
+			</panel>
+		</panel>
+
+		<text id="gamessection" class="section">GAMES</text>
+		<panel id="games" class="list" />
+		<text id="enginesection" class="section">ENGINE</text>
+		<panel id="engines" class="list" />
+
+		<panel class="grow" />
+
+		<panel id="hubupdate" class="hubupdate" onclick="OnUpdateHub">
+			<text class="hubupdatetitle">Tessera Hub update</text>
+			<text id="hubupdatetext" class="hubupdatetext">A new version is ready. Click to install.</text>
+		</panel>
+		<panel id="settingsentry" class="navlink" onclick="OnShowSettings">
+			<text class="navlinktext">Settings</text>
+		</panel>
+		<text id="version" class="version">Version</text>
+	</panel>
+
+	<!-- One row of the list, copied for each item. -->
+	<panel id="entrytemplate" class="entry" onclick="OnSelect">
+		<image class="entryicon" src="UI/icon_tessera.png" />
+		<panel class="entrytext">
+			<text class="entryname">Name</text>
+			<text class="entrystate">Not installed</text>
+		</panel>
+		<text class="entrybadge">BETA</text>
+	</panel>
+
+	<!-- The page of the selected item. -->
+	<panel id="page">
+		<image id="banner" src="UI/banner_tessera.png" />
+		<panel id="body">
+			<panel id="titlerow">
+				<text id="title">Tessera</text>
+				<text id="badge" class="badge">BETA</text>
+			</panel>
+			<text id="summary">Summary</text>
+
+			<panel id="actions">
+				<button id="primary" onclick="OnPrimary">INSTALL</button>
+				<button id="updatebutton" class="secondary" onclick="OnUpdate">Update</button>
+				<button id="folderbutton" class="secondary" onclick="OnShowFolder">Show Folder</button>
+				<button id="removebutton" class="secondary danger" onclick="OnUninstall">Uninstall</button>
+			</panel>
+
+			<panel id="progress">
+				<panel id="progresshead">
+					<text id="progresstext">Downloading</text>
+					<button id="cancelbutton" class="link" onclick="OnCancel">Cancel</button>
+				</panel>
+				<bar id="progressbar" />
+			</panel>
+
+			<text id="message" class="message">Message</text>
+
+			<panel id="facts">
+				<panel class="fact">
+					<text class="factlabel">INSTALLED</text>
+					<text id="factinstalled" class="factvalue">Not installed</text>
+				</panel>
+				<panel class="fact">
+					<text class="factlabel">NEWEST</text>
+					<text id="factlatest" class="factvalue">Checking</text>
+				</panel>
+				<panel class="fact">
+					<text class="factlabel">SIZE</text>
+					<text id="factsize" class="factvalue">-</text>
+				</panel>
+				<panel id="factneedsbox" class="fact">
+					<text class="factlabel">ALSO NEEDS</text>
+					<text id="factneeds" class="factvalue">-</text>
+				</panel>
+			</panel>
+
+			<text id="noteslabel" class="factlabel">WHAT'S NEW</text>
+			<text id="notes">Notes</text>
+		</panel>
+	</panel>
+
+	<!-- Settings, in place of an item's page. -->
+	<panel id="settings">
+		<text id="settingstitle">Settings</text>
+		<panel class="setting">
+			<panel class="settingtext">
+				<text class="settingname">Get beta builds</text>
+				<text class="settinghelp">Install and update to releases marked as betas. Almost everything here is in beta for now, so leave this on to get anything at all.</text>
+			</panel>
+			<toggle id="betatoggle" onchange="OnBetas" />
+		</panel>
+		<panel class="setting">
+			<panel class="settingtext">
+				<text class="settingname">Check for updates</text>
+				<text id="checkedtext" class="settinghelp">The Hub checks when it starts.</text>
+			</panel>
+			<button class="secondary" onclick="OnCheck">Check Now</button>
+		</panel>
+		<panel class="setting">
+			<panel class="settingtext">
+				<text class="settingname">Hub folder</text>
+				<text id="folderpath" class="settinghelp">Path</text>
+			</panel>
+			<button class="secondary" onclick="OnOpenHubFolder">Open</button>
+		</panel>
+		<panel class="setting">
+			<panel class="settingtext">
+				<text class="settingname">Tools folder</text>
+				<text id="toolspath" class="settinghelp">Path</text>
+			</panel>
+			<button class="secondary" onclick="OnOpenToolsFolder">Open</button>
+		</panel>
+	</panel>
+
+	<!-- Asking before tools are installed. -->
+	<panel id="dialog" onclick="OnDialogBackdrop">
+		<panel id="dialogcard">
+			<text id="dialogtitle">Tessera needs some tools first</text>
+			<text id="dialogtext">These are not on this computer yet. The Hub can download and set them up now.</text>
+			<panel id="dialoglist" />
+			<text id="dialogtotal" class="settinghelp">Total</text>
+			<panel id="dialogbuttons">
+				<button class="secondary" onclick="OnDialogCancel">Not Now</button>
+				<button id="dialogok" onclick="OnDialogInstall">Install Everything</button>
+			</panel>
+		</panel>
+	</panel>
+
+	<!-- One row of the dialog's list, copied for each tool. -->
+	<panel id="tooltemplate" class="tool">
+		<panel class="tooltop">
+			<text class="toolname">Tool</text>
+			<text class="toolsize">size</text>
+		</panel>
+		<text class="toolsummary">What it is for.</text>
+		<panel class="toollicence" onclick="OnLicence">
+			<text class="toollicencetext">Licence</text>
+		</panel>
+	</panel>
+</panel>

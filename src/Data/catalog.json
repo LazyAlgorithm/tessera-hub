@@ -1,0 +1,205 @@
+{
+  "version": 1,
+  "items": [
+    {
+      "id": "ringfall",
+      "kind": "game",
+      "name": "Ringfall",
+      "beta": true,
+      "summary": "Arena shooter: Slayer, King of the Hill, Prop Hunt, Infection and Tag, with bots, online play and a map editor.",
+      "repo": "LazyAlgorithm/ringfall-releases",
+      "assets": {
+        "windows": "Ringfall-Windows.zip",
+        "linux": "Ringfall-Linux.zip"
+      },
+      "run": {
+        "windows": "Ringfall-Windows/Ringfall.exe",
+        "linux": "Ringfall-Linux/Ringfall"
+      },
+      "requires": [],
+      "banner": "UI/banner_ringfall.png",
+      "icon": "UI/icon_ringfall.png",
+      "accent": "#ffc145"
+    },
+    {
+      "id": "tessera",
+      "kind": "engine",
+      "name": "Tessera",
+      "beta": true,
+      "summary": "The game engine and editor Ringfall is made with: scenes, physics, networking, voxel terrain, saving and a visual editor.",
+      "repo": "LazyAlgorithm/Tessera",
+      "tagPrefix": "build-",
+      "assets": {
+        "windows": "Tessera-Windows.zip",
+        "linux": "Tessera-Linux.zip"
+      },
+      "run": {
+        "windows": "Tessera-Windows/Tessera.exe",
+        "linux": "Tessera-Linux/Tessera"
+      },
+      "requires": [
+        "beef",
+        "python",
+        "microsoft-libraries",
+        "linux-build-tools"
+      ],
+      "banner": "UI/banner_tessera.png",
+      "icon": "UI/icon_tessera.png",
+      "accent": "#4cc3f0"
+    }
+  ],
+  "dependencies": [
+    {
+      "id": "beef",
+      "name": "Beef compiler",
+      "summary": "Compiles Tessera projects' scripts.",
+      "size": "about 100 MB",
+      "found": [
+        {
+          "env": "BEEFBUILD"
+        },
+        {
+          "program": "BeefBuild"
+        },
+        {
+          "file": {
+            "windows": "{tools}/beef/bin/BeefBuild.exe",
+            "linux": "{tools}/beef/IDE/dist/BeefBuild.sh"
+          }
+        },
+        {
+          "file": {
+            "windows": "C:/Program Files/BeefLang/bin/BeefBuild.exe"
+          }
+        }
+      ],
+      "install": {
+        "windows": [
+          {
+            "download": "https://github.com/LazyAlgorithm/Tessera/releases/download/toolchain-2/beef-windows-x64.zip",
+            "unpack": "{tools}"
+          }
+        ],
+        "linux": [
+          {
+            "download": "https://github.com/LazyAlgorithm/Tessera/releases/download/toolchain-2/beef-linux-x64.tar.gz",
+            "unpack": "{tools}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "python",
+      "name": "Python 3.11 or later",
+      "summary": "Runs Tessera's build scripts. A copy only Tessera uses is installed.",
+      "size": "about 50 MB",
+      "found": [
+        {
+          "command": {
+            "windows": "python -c \"import sys; sys.exit(0 if sys.version_info >= (3, 11) else 1)\"",
+            "linux": "python3 -c \"import sys; sys.exit(0 if sys.version_info >= (3, 11) else 1)\""
+          }
+        },
+        {
+          "file": {
+            "windows": "{tools}/python/python.exe",
+            "linux": "{tools}/python/bin/python3"
+          }
+        }
+      ],
+      "install": {
+        "windows": [
+          {
+            "download": "https://github.com/LazyAlgorithm/Tessera/releases/download/toolchain-2/python-windows-x64.zip",
+            "unpack": "{tools}"
+          }
+        ],
+        "linux": [
+          {
+            "download": "https://github.com/LazyAlgorithm/Tessera/releases/download/toolchain-2/python-linux-x64.tar.gz",
+            "unpack": "{tools}"
+          }
+        ]
+      }
+    },
+    {
+      "id": "microsoft-libraries",
+      "name": "Microsoft C runtime and Windows SDK libraries",
+      "summary": "What Windows programs are linked against. Visual Studio's C++ tools have them; without those, they are downloaded with xwin.",
+      "size": "about 700 MB",
+      "platforms": [
+        "windows"
+      ],
+      "licence": {
+        "name": "Microsoft Visual Studio Build Tools licence",
+        "url": "https://go.microsoft.com/fwlink/?LinkId=2086102"
+      },
+      "found": [
+        {
+          "visualStudio": "Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
+        },
+        {
+          "file": {
+            "windows": "{tools}/msvc/crt/lib/x86_64/libcmt.lib"
+          }
+        }
+      ],
+      "install": {
+        "windows": [
+          {
+            "download": "https://github.com/LazyAlgorithm/Tessera/releases/download/toolchain-2/xwin-windows-x64.zip",
+            "unpack": "{tools}"
+          },
+          {
+            "run": "\"{tools}/xwin.exe\" --accept-license --arch x86_64 --cache-dir \"{tools}/xwin-cache\" splat --output \"{tools}/msvc\""
+          },
+          {
+            "delete": "{tools}/xwin-cache"
+          },
+          {
+            "write": "{tools}/beef/bin/BeefSettings.toml",
+            "text": "[VisualStudio]\nManuallySet = true\nBin32Path = \"\"\nBin64Path = \"\"\nLib32Paths = []\nLib64Paths = [\"{tools_toml}/msvc/crt/lib/x86_64\", \"{tools_toml}/msvc/sdk/lib/um/x86_64\", \"{tools_toml}/msvc/sdk/lib/ucrt/x86_64\"]\n"
+          }
+        ]
+      },
+      "alsoInstall": [
+        "beef"
+      ]
+    },
+    {
+      "id": "linux-build-tools",
+      "name": "C compiler, X11 and OpenGL development files",
+      "summary": "What Linux programs are linked with. Installed by your system's package manager, which asks for your password.",
+      "platforms": [
+        "linux"
+      ],
+      "found": [
+        {
+          "all": [
+            {
+              "program": "cc"
+            },
+            {
+              "libraries": [
+                "libGL.so",
+                "libX11.so"
+              ]
+            }
+          ]
+        }
+      ],
+      "install": {
+        "linux": [
+          {
+            "packages": {
+              "apt-get": "build-essential libgl-dev libx11-dev",
+              "dnf": "gcc gcc-c++ mesa-libGL-devel libX11-devel",
+              "pacman": "base-devel libglvnd libx11",
+              "zypper": "gcc gcc-c++ Mesa-libGL-devel libX11-devel"
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

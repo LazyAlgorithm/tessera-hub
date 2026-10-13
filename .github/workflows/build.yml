@@ -1,0 +1,241 @@
+# Builds Tessera Hub for Linux and Windows with the Tessera engine's own builder (tools/build_player.py), zips each,
+# and puts them on a release in this repository, where the Hub looks for its own updates.
+#
+# When it runs:
+#   - a version tag is pushed (git tag v1.0 && git push origin v1.0): a release named after the tag;
+#   - a push to the `release` branch: a pre-release (a beta) named after the date and commit;
+#   - by hand, from the Actions tab (Run workflow).
+#
+# The Hub is told which release it is (src/Data/version.txt, from .github/scripts/version.sh), so that it can tell
+# when a newer one is out. The engine's native libraries and the Beef compilers are kept in the Actions cache.
+name: Build and release
+
+on:
+  push:
+    tags: ['v*']
+    branches: [release]
+  workflow_dispatch:
+    inputs:
+      tessera_ref:
+        description: Tessera branch, tag or commit to build with
+        default: main
+      publish:
+        description: Make a pre-release (otherwise the zips are only attached to the run)
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+env:
+  TESSERA_REF: ${{ inputs.tessera_ref || 'main' }}
+  BEEF_COMMIT: b62833e327d6b08f3566b31102c57646de6916b0
+  LLVM_VERSION: '22'
+  NATIVE_TARGETS: tessera_native bgfx bimg bimg_decode bx SDL3-static joltc Jolt enet
+
+jobs:
+  linux:
+    runs-on: ubuntu-22.04
+    timeout-minutes: 90
+    defaults:
+      run:
+        # A failing step repeats the end of its output on the run's page (.github/scripts/step.sh).
+        shell: bash hub/.github/scripts/step.sh {0}
+    steps:
+      - name: Get the Hub
+        uses: actions/checkout@v4
+        with:
+          path: hub
+
+      - name: Get Tessera
+        uses: actions/checkout@v4
+        with:
+          repository: LazyAlgorithm/Tessera
+          ref: ${{ env.TESSERA_REF }}
+          path: tessera
+
+      # The build scripts need Python 3.11 or later (tomllib); Ubuntu 22.04 has 3.10.
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Build tools and Beef
+        uses: ./hub/.github/actions/beef-linux
+        with:
+          beef-commit: ${{ env.BEEF_COMMIT }}
+          llvm-version: ${{ env.LLVM_VERSION }}
+
+      - name: Native library cache key
+        id: native-key
+        run: echo "key=$(tessera/.github/scripts/native-deps.sh key linux)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache the native libraries
+        id: native-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: tessera/build/native
+          key: ${{ steps.native-key.outputs.key }}
+
+      - name: Native libraries
+        run: |
+          [ "${{ steps.native-cache.outputs.cache-hit }}" = "true" ] && tessera/.github/scripts/native-deps.sh settle
+          cd tessera
+          python3 tools/patch_textedit.py
+          [ -f build/native/CMakeCache.txt ] || cmake -S native -B build/native -G Ninja -DCMAKE_BUILD_TYPE=Release
+          cmake --build build/native -j "$(nproc)" --target $NATIVE_TARGETS
+
+      - name: Keep the native libraries
+        if: steps.native-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: tessera/build/native
+          key: ${{ steps.native-key.outputs.key }}
+
+      - name: Build
+        run: |
+          cd tessera
+          "$GITHUB_WORKSPACE/hub/.github/scripts/version.sh" > ../hub/src/Data/version.txt
+          python3 tools/build_player.py ../hub --platform linux --output ../out/TesseraHub-Linux
+          cd ../out && rm -f TesseraHub-Linux/log.txt && zip -qr9 TesseraHub-Linux.zip TesseraHub-Linux
+
+      - name: Keep the zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: TesseraHub-Linux
+          path: out/TesseraHub-Linux.zip
+
+  windows:
+    runs-on: windows-2022
+    timeout-minutes: 90
+    env:
+      # The build scripts read and write UTF-8 text, whatever the machine's own code page.
+      PYTHONUTF8: '1'
+    defaults:
+      run:
+        shell: bash hub/.github/scripts/step.sh {0}
+    steps:
+      # Scripts are run by bash: keep their line endings as they are in the repository.
+      - name: Line endings
+        shell: pwsh
+        run: git config --global core.autocrlf false
+
+      - name: Get the Hub
+        uses: actions/checkout@v4
+        with:
+          path: hub
+
+      - name: Get Tessera
+        uses: actions/checkout@v4
+        with:
+          repository: LazyAlgorithm/Tessera
+          ref: ${{ env.TESSERA_REF }}
+          path: tessera
+
+      - name: Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Microsoft's compiler environment (the C runtime and Windows SDK), used by clang-cl and Beef's linker.
+      - name: Visual Studio environment
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Install build tools
+        run: |
+          python -m pip install --quiet ninja
+          ninja --version
+          clang-cl --version | head -1
+
+      - name: Cache the Beef compiler
+        id: beef-cache
+        uses: actions/cache@v4
+        with:
+          path: beef-win
+          key: beef-win-v1
+
+      - name: Get the Beef compiler
+        if: steps.beef-cache.outputs.cache-hit != 'true'
+        run: |
+          curl -sL -o BeefSetup.exe http://nightly.beeflang.org/BeefSetup.exe
+          mkdir -p beef-win && (cd beef-win && 7z x -y ../BeefSetup.exe > /dev/null)
+          rm -f BeefSetup.exe
+
+      - name: Native library cache key
+        id: native-key
+        run: echo "key=$(tessera/.github/scripts/native-deps.sh key windows)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache the native libraries
+        id: native-cache
+        uses: actions/cache/restore@v4
+        with:
+          path: tessera/build/native-win
+          key: ${{ steps.native-key.outputs.key }}
+
+      - name: Native libraries
+        run: |
+          [ "${{ steps.native-cache.outputs.cache-hit }}" = "true" ] && tessera/.github/scripts/native-deps.sh settle
+          cd tessera
+          python tools/patch_textedit.py
+          # Beef links Windows programs against the static C runtime; so must everything linked into them.
+          [ -f build/native-win/CMakeCache.txt ] || cmake -S native -B build/native-win -G Ninja -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_C_COMPILER=clang-cl -DCMAKE_CXX_COMPILER=clang-cl \
+            -DCMAKE_MSVC_RUNTIME_LIBRARY=MultiThreaded -DCMAKE_POLICY_DEFAULT_CMP0091=NEW
+          cmake --build build/native-win -j "$NUMBER_OF_PROCESSORS" --target $NATIVE_TARGETS
+
+      - name: Keep the native libraries
+        if: steps.native-cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: tessera/build/native-win
+          key: ${{ steps.native-key.outputs.key }}
+
+      - name: Build
+        run: |
+          # Beef finds its libraries beside itself.
+          printf 'Version = 1\nUnversionedLibDirs = ["../BeefLibs"]\n' > beef-win/bin/BeefConfig.toml
+          export BEEFBUILD="$(cygpath -w "$PWD/beef-win/bin/BeefBuild.exe")"
+          cd tessera
+          "$GITHUB_WORKSPACE/hub/.github/scripts/version.sh" > ../hub/src/Data/version.txt
+          python tools/build_player.py ../hub --platform windows --output ../out/TesseraHub-Windows
+          cd ../out && rm -f TesseraHub-Windows/log.txt && 7z a -tzip -mx=9 TesseraHub-Windows.zip TesseraHub-Windows > /dev/null
+
+      - name: Keep the zip
+        uses: actions/upload-artifact@v4
+        with:
+          name: TesseraHub-Windows
+          path: out/TesseraHub-Windows.zip
+
+  release:
+    needs: [linux, windows]
+    if: github.event_name == 'push' || inputs.publish
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Get the Hub
+        uses: actions/checkout@v4
+        with:
+          path: hub
+
+      - name: Get the zips
+        uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+
+      - name: Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$(hub/.github/scripts/version.sh)"
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then title="Tessera Hub ${tag}"; pre=""; else title="Tessera Hub beta $(date -u +%Y-%m-%d) ($(git -C hub rev-parse --short HEAD))"; pre="--prerelease"; fi
+          gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag 2>/dev/null || true
+          notes="Tessera Hub installs and updates games made with Tessera, and the engine itself.
+
+          - **TesseraHub-Windows.zip**: unzip and run TesseraHub.exe. Needs a graphics driver with Vulkan.
+          - **TesseraHub-Linux.zip**: unzip and run TesseraHub. Needs X11 or XWayland and a Vulkan or OpenGL driver.
+
+          Once installed, the Hub updates itself."
+          (cd out && sha256sum *.zip > SHA256SUMS.txt && cat SHA256SUMS.txt)
+          gh release create "$tag" out/*.zip out/SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "$title" --notes "$notes" $pre

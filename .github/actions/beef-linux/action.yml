@@ -1,0 +1,49 @@
+# Build tools for a Linux job: the system libraries Tessera links against, LLVM, and Beef's compiler (built from
+# source once, then kept in the Actions cache). Sets BEEFBUILD.
+name: Beef on Linux
+inputs:
+  beef-commit:
+    required: true
+  llvm-version:
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Install build tools
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y --no-install-recommends ninja-build cmake zip xz-utils curl \
+          libx11-dev libxext-dev libxi-dev libxfixes-dev libxcursor-dev libxrandr-dev libxss-dev libxrender-dev \
+          libgl-dev libegl-dev libasound2-dev libpulse-dev libwayland-dev libxkbcommon-dev \
+          libffi-dev zlib1g-dev libzstd-dev libxml2-dev libedit-dev
+        wget -q https://apt.llvm.org/llvm.sh
+        sudo bash llvm.sh "${{ inputs.llvm-version }}"
+        sudo apt-get install -y "llvm-${{ inputs.llvm-version }}-dev" "clang-${{ inputs.llvm-version }}" "lld-${{ inputs.llvm-version }}"
+        for tool in clang clang++ llvm-ar llvm-config wasm-ld; do
+          sudo ln -sf "/usr/lib/llvm-${{ inputs.llvm-version }}/bin/$tool" "/usr/local/bin/$tool"
+        done
+        echo "BEEFBUILD=$HOME/beef/IDE/dist/BeefBuild" >> "$GITHUB_ENV"
+
+    # Restored and saved as separate steps, so that a compiler built by a run that later fails is still kept.
+    - name: Cache the Beef compiler
+      id: beef-cache
+      uses: actions/cache/restore@v4
+      with:
+        path: ~/beef
+        key: beef-${{ inputs.beef-commit }}-llvm${{ inputs.llvm-version }}-jammy
+
+    - name: Build the Beef compiler
+      if: steps.beef-cache.outputs.cache-hit != 'true'
+      shell: bash
+      run: |
+        git clone https://github.com/beefytech/Beef ~/beef
+        git -C ~/beef checkout "${{ inputs.beef-commit }}"
+        cd ~/beef/bin && ./build.sh
+
+    - name: Keep the Beef compiler
+      if: steps.beef-cache.outputs.cache-hit != 'true'
+      uses: actions/cache/save@v4
+      with:
+        path: ~/beef
+        key: beef-${{ inputs.beef-commit }}-llvm${{ inputs.llvm-version }}-jammy

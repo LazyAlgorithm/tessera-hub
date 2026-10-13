@@ -1,0 +1,8 @@
+name = TesseraHub
+startScene = Scenes/Hub.tscene
+engine = /home/zerker24/BeefProjects/Tessera
+fullscreen = 0
+windowWidth = 1280
+windowHeight = 760
+escapeQuits = 0
+packCompress = 1

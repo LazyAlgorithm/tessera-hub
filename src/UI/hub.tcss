@@ -1,0 +1,95 @@
+/* Tessera Hub. Laid out for a window 760 points tall (the scene's UI Document reference height). */
+
+#hub { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background-color: #0c1018; color: #e8eef6 }
+
+/* ---- the list down the left ---- */
+#sidebar { position: absolute; left: 0; top: 0; bottom: 0; width: 280; padding: 22 0 18 0; background-color: #080b11; border-width: 0 }
+#brand { flex-direction: row; align-items: center; gap: 12; padding: 0 22; margin: 0 0 22 0 }
+#brandmark { width: 40; height: 40 }
+#brandtext { gap: 2 }
+#brandname { font-size: 17; color: #f2f6fb }
+#brandsub { font-size: 12; color: #6f7d90 }
+
+.section { font-size: 12; color: #5d6b7e; padding: 0 24; margin: 14 0 6 0 }
+.list { gap: 4; padding: 0 10 }
+
+.entry { flex-direction: row; align-items: center; gap: 12; height: 60; padding: 0 12; border-radius: 8; background-color: #00000000 }
+.entryicon { width: 40; height: 40 }
+.entrytext { gap: 3; flex-grow: 1 }
+.entryname { font-size: 16; color: #e8eef6 }
+.entrystate { font-size: 12; color: #7c8a9c }
+.entrybadge { font-size: 10; color: #ffc145; padding: 3 6; border-radius: 4; background-color: #ffc14522 }
+.stateupdate { color: #4cc3f0 }
+.stateready { color: #6fd39a }
+
+.grow { flex-grow: 1 }
+
+.hubupdate { margin: 0 10 8 10; padding: 12 14; gap: 3; border-radius: 8; background-color: #123047; border-width: 1; border-color: #4cc3f066 }
+.hubupdatetitle { font-size: 14; color: #8fd8fa }
+.hubupdatetext { font-size: 12; color: #b7c7d8; white-space: normal; width: 230 }
+
+.navlink { margin: 0 10; padding: 0 14; height: 40; border-radius: 8; justify-content: center; background-color: #00000000 }
+.navlinktext { font-size: 15; color: #aab6c5 }
+.selected { background-color: #1a2332 }
+.version { font-size: 11; color: #4b5767; padding: 10 24 0 24 }
+
+/* ---- an item's page ---- */
+#page { position: absolute; left: 280; top: 0; right: 0; bottom: 0 }
+#banner { position: absolute; left: 0; top: 0; width: 100%; height: 400 }
+#body { position: absolute; left: 48; right: 48; top: 240; gap: 0 }
+
+#titlerow { flex-direction: row; align-items: center; gap: 14 }
+#title { font-size: 46; color: #ffffff }
+.badge { font-size: 12; color: #ffc145; padding: 5 9; border-radius: 5; background-color: #ffc1452a; border-width: 1; border-color: #ffc14566 }
+#summary { font-size: 16; color: #c2cdda; white-space: normal; width: 620; margin: 8 0 0 0 }
+
+#actions { flex-direction: row; align-items: center; gap: 10; margin: 26 0 0 0 }
+#primary { width: 210; height: 52; font-size: 19; color: #07111b; background-color: #4cc3f0; border-radius: 8 }
+.secondary { height: 44; font-size: 15; padding: 0 18; color: #d5deea; background-color: #1a2332; border-width: 1; border-color: #2a3647; border-radius: 8 }
+.danger { color: #ff9a8a }
+.disabled { color: #0b1520a0; background-color: #4a5566 }
+
+#progress { margin: 18 0 0 0; gap: 8; width: 620 }
+#progresshead { flex-direction: row; align-items: center; justify-content: space-between }
+#progresstext { font-size: 14; color: #c2cdda }
+.link { height: 26; font-size: 13; padding: 0 10; color: #8fd8fa; background-color: #00000000; border-width: 0 }
+#progressbar { width: 620; height: 8; border-radius: 4; background-color: #1a2332; color: #4cc3f0 }
+
+.message { font-size: 14; margin: 16 0 0 0; padding: 10 14; border-radius: 6; white-space: normal; width: 620; color: #ffd2c8; background-color: #3a1a1a }
+.messageok { color: #c9f3da; background-color: #143023 }
+
+#facts { flex-direction: row; gap: 36; margin: 30 0 0 0; padding: 18 0 0 0; border-width: 0 }
+.fact { gap: 5 }
+.factlabel { font-size: 11; color: #5d6b7e }
+.factvalue { font-size: 15; color: #dde5ef }
+
+#noteslabel { margin: 26 0 6 0 }
+#notes { font-size: 14; color: #9aa8b9; white-space: normal; width: 760 }
+
+/* ---- settings ---- */
+#settings { position: absolute; left: 280; top: 0; right: 0; bottom: 0; padding: 48 56; gap: 14 }
+#settingstitle { font-size: 34; color: #ffffff; margin: 0 0 14 0 }
+.setting { flex-direction: row; align-items: center; gap: 30; padding: 18 22; border-radius: 10; background-color: #121924; width: 760 }
+.settingtext { gap: 5; flex-grow: 1 }
+.settingname { font-size: 16; color: #e8eef6 }
+.settinghelp { font-size: 13; color: #8391a3; white-space: normal; width: 560 }
+#betatoggle { color: #4cc3f0; background-color: #2a3647 }
+
+/* ---- asking before installing tools ---- */
+#dialog { position: absolute; left: 0; top: 0; width: 100%; height: 100%; background-color: #04060acc; align-items: center; justify-content: center }
+#dialogcard { width: 600; padding: 30 32; gap: 10; border-radius: 12; background-color: #121924; border-width: 1; border-color: #2a3647 }
+#dialogtitle { font-size: 24; color: #ffffff }
+#dialogtext { font-size: 14; color: #aab6c5; white-space: normal; width: 536 }
+#dialoglist { gap: 8; margin: 10 0 4 0 }
+.tool { padding: 12 14; gap: 4; border-radius: 8; background-color: #0c1018 }
+.tooltop { flex-direction: row; justify-content: space-between }
+.toolname { font-size: 15; color: #e8eef6 }
+.toolsize { font-size: 13; color: #7c8a9c }
+.toolsummary { font-size: 13; color: #8f9cad; white-space: normal; width: 508 }
+.toollicence { height: 20; justify-content: center; background-color: #00000000 }
+.toollicencetext { font-size: 12; color: #8fd8fa }
+#dialogbuttons { flex-direction: row; justify-content: end; gap: 10; margin: 14 0 0 0 }
+#dialogok { height: 44; font-size: 15; padding: 0 22; color: #07111b; background-color: #4cc3f0; border-radius: 8 }
+
+#entrytemplate { display: none }
+#tooltemplate { display: none }
