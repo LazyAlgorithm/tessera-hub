@@ -65,3 +65,7 @@ installed Hubs then update to.
 - `src/Scripts/HubUi.bf` is the window, and `src/UI/hub.tui` and `hub.tcss` how it looks.
 
 macOS is planned; the code already knows the platform, and a Mac build waits on the engine's.
+
+The Windows engine entry requires a configured Beef compiler plus the Microsoft C runtime and Windows SDK libraries for compiling projects. The Hub verifies all three library directories and the managed compiler's settings. It checks these requirements when launching an already-installed engine too, and offers to repair missing tools before starting it. Games such as Polystrike are standalone and do not require these development tools.
+
+Polystrike downloads are published separately at https://github.com/LazyAlgorithm/polystrike-releases; game source is not included in the public release repository.

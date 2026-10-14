@@ -143,6 +143,10 @@ jobs:
         with:
           arch: x64
 
+      - name: Check Windows library detection
+        shell: pwsh
+        run: python hub/tools/test_windows_libraries.py
+
       - name: Install build tools
         run: |
           python -m pip install --quiet ninja

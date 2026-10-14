@@ -22,6 +22,27 @@
       "accent": "#ffc145"
     },
     {
+      "id": "polystrike",
+      "kind": "game",
+      "name": "Polystrike",
+      "beta": true,
+      "summary": "Low-poly arena shooter with bots, online multiplayer, multiple modes and a map editor.",
+      "repo": "LazyAlgorithm/polystrike-releases",
+      "tagPrefix": "polystrike-",
+      "assets": {
+        "windows": "Polystrike-Windows.zip",
+        "linux": "Polystrike-Linux.zip"
+      },
+      "run": {
+        "windows": "Polystrike-Windows/Polystrike.exe",
+        "linux": "Polystrike-Linux/Polystrike"
+      },
+      "requires": [],
+      "banner": "UI/banner_polystrike.png",
+      "icon": "UI/icon_polystrike.png",
+      "accent": "#45cdf0"
+    },
+    {
       "id": "tessera",
       "kind": "engine",
       "name": "Tessera",
@@ -125,7 +146,7 @@
     {
       "id": "microsoft-libraries",
       "name": "Microsoft C runtime and Windows SDK libraries",
-      "summary": "What Windows programs are linked against. Visual Studio's C++ tools have them; without those, they are downloaded with xwin.",
+      "summary": "Microsoft C runtime and Windows SDK libraries, with verified settings for the compiler Tessera uses. Downloads missing libraries with xwin.",
       "size": "about 700 MB",
       "platforms": [
         "windows"
@@ -136,12 +157,33 @@
       },
       "found": [
         {
-          "visualStudio": "Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
-        },
-        {
-          "file": {
-            "windows": "{tools}/msvc/crt/lib/x86_64/libcmt.lib"
-          }
+          "all": [
+            {
+              "file": {
+                "windows": "{tools}/beef/bin/BeefBuild.exe"
+              }
+            },
+            {
+              "file": {
+                "windows": "{tools}/msvc/crt/lib/x86_64/libcmt.lib"
+              }
+            },
+            {
+              "file": {
+                "windows": "{tools}/msvc/sdk/lib/um/x86_64/kernel32.lib"
+              }
+            },
+            {
+              "file": {
+                "windows": "{tools}/msvc/sdk/lib/ucrt/x86_64/ucrt.lib"
+              }
+            },
+            {
+              "command": {
+                "windows": "findstr /L /C:\"ManuallySet = true\" \"{tools}/beef/bin/BeefSettings.toml\" > NUL && findstr /L /C:\"Lib64Paths =\" \"{tools}/beef/bin/BeefSettings.toml\" > NUL && findstr /L /C:\"{tools}/msvc/crt/lib/x86_64\" \"{tools}/beef/bin/BeefSettings.toml\" > NUL && findstr /L /C:\"{tools}/msvc/sdk/lib/um/x86_64\" \"{tools}/beef/bin/BeefSettings.toml\" > NUL && findstr /L /C:\"{tools}/msvc/sdk/lib/ucrt/x86_64\" \"{tools}/beef/bin/BeefSettings.toml\" > NUL"
+              }
+            }
+          ]
         }
       ],
       "install": {
@@ -158,7 +200,7 @@
           },
           {
             "write": "{tools}/beef/bin/BeefSettings.toml",
-            "text": "[VisualStudio]\nManuallySet = true\nBin32Path = \"\"\nBin64Path = \"\"\nLib32Paths = []\nLib64Paths = [\"{tools_toml}/msvc/crt/lib/x86_64\", \"{tools_toml}/msvc/sdk/lib/um/x86_64\", \"{tools_toml}/msvc/sdk/lib/ucrt/x86_64\"]\n"
+            "text": "[VisualStudio]\nManuallySet = true\nBin32Path = \"\"\nBin64Path = \"\"\nLib32Paths = []\nLib64Paths = [\"{tools}/msvc/crt/lib/x86_64\", \"{tools}/msvc/sdk/lib/um/x86_64\", \"{tools}/msvc/sdk/lib/ucrt/x86_64\"]\n"
           }
         ]
       },

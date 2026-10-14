@@ -26,12 +26,19 @@ class HubUi : Component
 	List<Catalog.Dependency> mDialogTools = new .() ~ delete _;
 	String mDialogItem = new .() ~ delete _;
 	bool mRestartAfterTask;
+	bool mDialogLaunch;
 	int32 mListVersion = -1;
 	int32 mVersion;
 
 	public override void Start()
 	{
 		Library.Load();
+		if (Application.Instance.HasArg("--dependencycheck"))
+		{
+			for (let dependency in Library.Catalog.Dependencies)
+				Console.WriteLine($"DEPENDENCY CHECK {dependency.id}: {Dependencies.IsFound(dependency)}");
+			return;
+		}
 		StartCheck();
 	}
 
@@ -459,6 +466,15 @@ class HubUi : Component
 			return;
 		if (Library.FindInstalled(item.id) != null)
 		{
+			mDialogTools.Clear();
+			Dependencies.Missing(Library.Catalog, item, mDialogTools);
+			if (!mDialogTools.IsEmpty)
+			{
+				mDialogLaunch = true;
+				mDialogItem.Set(item.id);
+				ShowDialog(item);
+				return;
+			}
 			if (!Library.Launch(item))
 			{
 				mMessageFor.Set(item.id);
@@ -480,6 +496,7 @@ class HubUi : Component
 	/// Installs or updates, asking first if tools are missing.
 	void Install(Catalog.Item item, bool update)
 	{
+		mDialogLaunch = false;
 		if (Library.LatestOf(item.id) == null)
 			return;
 		mDialogTools.Clear();
@@ -496,7 +513,7 @@ class HubUi : Component
 	void ShowDialog(Catalog.Item item)
 	{
 		Find("dialogtitle").SetText(scope $"{item.name} needs {(mDialogTools.Count == 1 ? "a tool" : "some tools")} first");
-		Find("dialogtext").SetText(scope $"{(mDialogTools.Count == 1 ? "This is" : "These are")} not on this computer yet. The Hub can download and set {(mDialogTools.Count == 1 ? "it" : "them")} up now, then install {item.name}. Nothing is changed until you choose Install Everything.");
+		Find("dialogtext").SetText(scope $"{(mDialogTools.Count == 1 ? "This is" : "These are")} not on this computer yet. The Hub can download and set {(mDialogTools.Count == 1 ? "it" : "them")} up now, then {(mDialogLaunch ? "start" : "install")} {item.name}. Nothing is changed until you choose Install Everything.");
 		let list = Find("dialoglist");
 		Clear(list);
 		bool licences = false;
@@ -525,7 +542,24 @@ class HubUi : Component
 		mDialog.visible = false;
 		let item = Library.Catalog.FindItem(mDialogItem);
 		if (item != null && !Busy)
-			StartInstall(item, Library.FindInstalled(item.id) != null);
+		{
+			if (!mDialogLaunch)
+				StartInstall(item, Library.FindInstalled(item.id) != null);
+			else
+			{
+				let tools = new List<Catalog.Dependency>();
+				tools.AddRange(mDialogTools);
+				mDialogTools.Clear();
+				let launchItem = item;
+				Run(new Task("Repairing tools", item.id, new [=](task) =>
+					{
+						defer delete tools;
+						for (let tool in tools)
+							if (!Dependencies.Install(tool, task)) return false;
+						return Library.Launch(launchItem) || task.Fail("Tools are ready, but the installed program could not be started.");
+					}));
+			}
+		}
 	}
 
 	/// Clicks on the shade around the dialog go nowhere (not to what is behind it).
