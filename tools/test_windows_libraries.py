@@ -23,7 +23,7 @@ with tempfile.TemporaryDirectory(prefix='Tessera dependency test ') as temporary
         file = tools / relative
         file.parent.mkdir(parents=True, exist_ok=True)
         file.touch()
-    text = '[VisualStudio]\nManuallySet = true\nLib64Paths = ' + json.dumps([str(tools / 'msvc/crt/lib/x86_64'), str(tools / 'msvc/sdk/lib/um/x86_64'), str(tools / 'msvc/sdk/lib/ucrt/x86_64')]) + '\n'
+    text = '[VisualStudio]\nManuallySet = true\nLib64Paths = ' + json.dumps([(tools / 'msvc/crt/lib/x86_64').as_posix(), (tools / 'msvc/sdk/lib/um/x86_64').as_posix(), (tools / 'msvc/sdk/lib/ucrt/x86_64').as_posix()]) + '\n'
     def found():
         result = subprocess.run([os.environ['HUB_TEST_EXE'], '--headless', '--frames', '2', '--dependencycheck', '--tools-folder', str(tools)],
                                 cwd=Path(os.environ['HUB_TEST_EXE']).parent, capture_output=True, text=True, timeout=30)
