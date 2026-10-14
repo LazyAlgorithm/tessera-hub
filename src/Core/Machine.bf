@@ -81,6 +81,12 @@ static class Machine
 		output.Replace("{tools_toml}", toml);
 		output.Replace("{tools}", tools);
 		output.Replace("{hub}", DataFolder);
+#if BF_PLATFORM_WINDOWS
+		let windows = scope String();
+		Environment.GetEnvironmentVariable("SystemRoot", windows).IgnoreError();
+		windows.Replace('\\', '/');
+		output.Replace("{windows}", windows);
+#endif
 	}
 
 	public static void SetEnv(StringView name, StringView value)

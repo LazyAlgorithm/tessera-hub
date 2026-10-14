@@ -141,6 +141,25 @@
           "command": {
             "windows": "powershell -NoProfile -NonInteractive -Command \"$paths = @('HKLM:\\SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\x64', 'HKLM:\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\x64'); foreach ($p in $paths) { $r = Get-ItemProperty -LiteralPath $p -ErrorAction SilentlyContinue; if ($r.Installed -eq 1) { exit 0 } }; exit 1\""
           }
+        },
+        {
+          "all": [
+            {
+              "file": {
+                "windows": "{windows}/System32/vcruntime140.dll"
+              }
+            },
+            {
+              "file": {
+                "windows": "{windows}/System32/vcruntime140_1.dll"
+              }
+            },
+            {
+              "file": {
+                "windows": "{windows}/System32/msvcp140.dll"
+              }
+            }
+          ]
         }
       ],
       "install": {

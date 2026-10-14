@@ -313,7 +313,7 @@ static class Dependencies
 				task.SetStatus(scope $"Installing {dependency.name}; approve Windows' administrator prompt", -1);
 				let code = Machine.Run(value, log, true);
 				if (code == 1223) return task.Fail("Administrator approval was declined. Run Install again to retry.");
-				if (code != 0 && code != 3010) return task.Fail(scope $"Installing {dependency.name} failed (exit {code}). See {log} and Microsoft's installer logs in your TEMP folder.");
+				if (code != 0 && code != 3010 && !(code == 1638 && dependency.id == "vc-runtime")) return task.Fail(scope $"Installing {dependency.name} failed (exit {code}). See {log} and Microsoft's installer logs in your TEMP folder.");
 				if (code == 3010) Machine.AppendText(log, "\nInstallation succeeded. Windows reports a restart is needed; the Hub will not restart your machine.\n");
 			case .ConfigureMicrosoft:
 				let reason = scope String();
