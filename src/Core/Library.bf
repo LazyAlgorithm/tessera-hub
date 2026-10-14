@@ -47,7 +47,6 @@ static class Library
 	static Release sCheckedHub ~ delete _;
 	static bool sCheckReady;
 
-	static String StatePath => scope:: $"{Machine.DataFolder}/library.json";
 
 	// ---- starting up ----
 
@@ -71,7 +70,7 @@ static class Library
 	static void LoadState()
 	{
 		let text = scope String();
-		if (File.ReadAllText(StatePath, text) case .Err)
+		if (File.ReadAllText(scope $"{Machine.DataFolder}/library.json", text) case .Err)
 			return;
 		let root = SaveNode.FromText(text);
 		defer delete root;
@@ -132,7 +131,7 @@ static class Library
 		root.Set("installed", list);
 		let text = scope String();
 		root.ToText(text);
-		File.WriteAllText(StatePath, text).IgnoreError();
+		File.WriteAllText(scope $"{Machine.DataFolder}/library.json", text).IgnoreError();
 	}
 
 	// ---- looking things up ----

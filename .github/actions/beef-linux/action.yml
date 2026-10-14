@@ -1,5 +1,4 @@
-# Build tools for a Linux job: the system libraries Tessera links against, LLVM, and Beef's compiler (built from
-# source once, then kept in the Actions cache). Sets BEEFBUILD.
+# Use Tessera's published compiler built on Ubuntu 22.04, rather than rebuilding LLVM and Beef for every cold CI runner.
 name: Beef on Linux
 inputs:
   beef-commit:
@@ -9,41 +8,33 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Install build tools
+    - name: Install native build tools
       shell: bash
       run: |
         sudo apt-get update
-        sudo apt-get install -y --no-install-recommends ninja-build cmake zip xz-utils curl \
+        sudo apt-get install -y --no-install-recommends build-essential ninja-build cmake zip xz-utils curl \
           libx11-dev libxext-dev libxi-dev libxfixes-dev libxcursor-dev libxrandr-dev libxss-dev libxrender-dev \
           libgl-dev libegl-dev libasound2-dev libpulse-dev libwayland-dev libxkbcommon-dev \
-          libffi-dev zlib1g-dev libzstd-dev libxml2-dev libedit-dev
-        wget -q https://apt.llvm.org/llvm.sh
-        sudo bash llvm.sh "${{ inputs.llvm-version }}"
-        sudo apt-get install -y "llvm-${{ inputs.llvm-version }}-dev" "clang-${{ inputs.llvm-version }}" "lld-${{ inputs.llvm-version }}"
-        for tool in clang clang++ llvm-ar llvm-config wasm-ld; do
-          sudo ln -sf "/usr/lib/llvm-${{ inputs.llvm-version }}/bin/$tool" "/usr/local/bin/$tool"
-        done
-        echo "BEEFBUILD=$HOME/beef/IDE/dist/BeefBuild" >> "$GITHUB_ENV"
+          libtinfo5 libxml2 zlib1g-dev libzstd-dev
 
-    # Restored and saved as separate steps, so that a compiler built by a run that later fails is still kept.
-    - name: Cache the Beef compiler
+    - name: Cache the published Beef compiler
       id: beef-cache
-      uses: actions/cache/restore@v4
+      uses: actions/cache@v4
       with:
         path: ~/beef
-        key: beef-${{ inputs.beef-commit }}-llvm${{ inputs.llvm-version }}-jammy
+        key: beef-toolchain-2-c3c90b0dc239-jammy
 
-    - name: Build the Beef compiler
+    - name: Get the verified compiler
       if: steps.beef-cache.outputs.cache-hit != 'true'
       shell: bash
       run: |
-        git clone https://github.com/beefytech/Beef ~/beef
-        git -C ~/beef checkout "${{ inputs.beef-commit }}"
-        cd ~/beef/bin && ./build.sh
+        curl --fail --location --retry 3 -o "$RUNNER_TEMP/beef.tar.gz" \
+          https://github.com/LazyAlgorithm/Tessera/releases/download/toolchain-2/beef-linux-x64.tar.gz
+        echo "c3c90b0dc239262c08ef88de61b00c896afe11219c08c97d8975884b4ed17131  $RUNNER_TEMP/beef.tar.gz" | sha256sum --check
+        tar -xzf "$RUNNER_TEMP/beef.tar.gz" -C "$HOME"
 
-    - name: Keep the Beef compiler
-      if: steps.beef-cache.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
-      with:
-        path: ~/beef
-        key: beef-${{ inputs.beef-commit }}-llvm${{ inputs.llvm-version }}-jammy
+    - name: Select the packaged compiler
+      shell: bash
+      run: |
+        test "${{ inputs.beef-commit }}" = b62833e327d6b08f3566b31102c57646de6916b0
+        echo "BEEFBUILD=$HOME/beef/IDE/dist/BeefBuild.sh" >> "$GITHUB_ENV"
