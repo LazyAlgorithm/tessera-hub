@@ -23,7 +23,7 @@ with tempfile.TemporaryDirectory(prefix='Tessera dependency test ') as temporary
         file = tools / relative
         file.parent.mkdir(parents=True, exist_ok=True)
         file.touch()
-    text = '[VisualStudio]\nManuallySet = true\nLib64Paths = ' + json.dumps([str(tools / 'msvc/crt/lib/x86_64'), str(tools / 'msvc/sdk/lib/um/x86_64'), str(tools / 'msvc/sdk/lib/ucrt/x86_64')]) + '\n' 
+    text = '[VisualStudio]\nManuallySet = true\nLib64Paths = ' + json.dumps([str(tools / 'msvc/crt/lib/x86_64'), str(tools / 'msvc/sdk/lib/um/x86_64'), str(tools / 'msvc/sdk/lib/ucrt/x86_64')]) + '\n'
     def found():
         result = subprocess.run([os.environ['HUB_TEST_EXE'], '--headless', '--frames', '2', '--dependencycheck', '--tools-folder', str(tools)],
                                 cwd=Path(os.environ['HUB_TEST_EXE']).parent, capture_output=True, text=True, timeout=30)
@@ -66,7 +66,7 @@ with tempfile.TemporaryDirectory(prefix='Tessera registered SDK test ') as tempo
     actual_settings = compiler.parent / 'BeefSettings.toml'
     previous = actual_settings.read_bytes() if actual_settings.exists() else None
     try:
-        actual_settings.write_text('[VisualStudio]\nManuallySet = true\nLib64Paths = ' + json.dumps(paths) + '\n')
+        actual_settings.write_bytes(settings.read_bytes())
         project = tools / 'probe'
         (project / 'src').mkdir(parents=True)
         (project / 'BeefSpace.toml').write_text('FileVersion = 1\nProjects = { Probe = {Path = "."} }\n[Workspace]\nStartupProject = "Probe"\n[Configs.Release.Win64]\nToolset = "LLVM"\n')
