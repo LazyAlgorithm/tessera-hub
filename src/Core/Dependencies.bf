@@ -317,7 +317,9 @@ static class Dependencies
 				if (code == 3010) Machine.AppendText(log, "\nInstallation succeeded. Windows reports a restart is needed; the Hub will not restart your machine.\n");
 			case .ConfigureMicrosoft:
 				let reason = scope String();
-				if (!ConfigureMicrosoft(value, reason)) return task.Fail(reason);
+				if (!ConfigureMicrosoft(value, reason))
+				{ Machine.AppendText(log, scope $"\nMicrosoft configuration failed: {reason}\n"); return task.Fail(reason); }
+				Machine.AppendText(log, scope $"\nMicrosoft libraries configured successfully in {value}.\n");
 			case .Write:
 				let folder = scope String();
 				if (Path.GetDirectoryPath(value, folder) case .Ok)

@@ -178,11 +178,6 @@
               }
             },
             {
-              "visualStudio": {
-                "windows": "Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
-              }
-            },
-            {
               "beefLibraries": {
                 "windows": "{tools}/beef/bin/BeefSettings.toml"
               }
