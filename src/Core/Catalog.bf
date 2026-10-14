@@ -51,7 +51,7 @@ class Catalog
 	/// One step of installing a tool.
 	public class Step
 	{
-		public enum Kind { Download, Run, Packages, Write, Delete }
+		public enum Kind { Download, Run, RunAdmin, ConfigureMicrosoft, Packages, Write, Delete }
 		public Kind kind;
 		/// Download: the URL. Run: the command. Write and Delete: the path.
 		public String value = new .() ~ delete _;
@@ -267,6 +267,8 @@ class Catalog
 		let step = new Step();
 		if (node["download"] != null) { step.kind = .Download; Text(node, "download", step.value); Text(node, "unpack", step.extra); }
 		else if (node["run"] != null) { step.kind = .Run; Text(node, "run", step.value); }
+		else if (node["runAsAdmin"] != null) { step.kind = .RunAdmin; Text(node, "runAsAdmin", step.value); }
+		else if (node["configureMicrosoft"] != null) { step.kind = .ConfigureMicrosoft; Text(node, "configureMicrosoft", step.value); }
 		else if (node["write"] != null) { step.kind = .Write; Text(node, "write", step.value); Text(node, "text", step.extra); }
 		else if (node["delete"] != null) { step.kind = .Delete; Text(node, "delete", step.value); }
 		else if (node["packages"] != null)

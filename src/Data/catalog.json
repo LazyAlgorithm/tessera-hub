@@ -42,7 +42,8 @@
         "beef",
         "python",
         "microsoft-libraries",
-        "linux-build-tools"
+        "linux-build-tools",
+        "vc-runtime"
       ],
       "banner": "UI/banner_tessera.png",
       "icon": "UI/icon_tessera.png",
@@ -124,10 +125,43 @@
       }
     },
     {
+      "id": "vc-runtime",
+      "name": "Microsoft Visual C++ x64 runtime",
+      "summary": "Installs the shared runtime into Windows so other applications can use it. Administrator approval is required.",
+      "size": "About 25 MB",
+      "platforms": [
+        "windows"
+      ],
+      "licence": {
+        "name": "Microsoft Visual C++ Runtime licence",
+        "url": "https://learn.microsoft.com/en-us/cpp/windows/redistributing-visual-cpp-files"
+      },
+      "found": [
+        {
+          "command": {
+            "windows": "powershell -NoProfile -NonInteractive -Command \"$paths = @('HKLM:\\SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\x64', 'HKLM:\\SOFTWARE\\WOW6432Node\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\x64'); foreach ($p in $paths) { $r = Get-ItemProperty -LiteralPath $p -ErrorAction SilentlyContinue; if ($r.Installed -eq 1) { exit 0 } }; exit 1\""
+          }
+        }
+      ],
+      "install": {
+        "windows": [
+          {
+            "download": "https://aka.ms/vc14/vc_redist.x64.exe"
+          },
+          {
+            "runAsAdmin": "\"{hub}/downloads/vc_redist.x64.exe\" /install /quiet /norestart /log \"{hub}/vc-runtime-install.log\""
+          },
+          {
+            "delete": "{hub}/downloads/vc_redist.x64.exe"
+          }
+        ]
+      }
+    },
+    {
       "id": "microsoft-libraries",
-      "name": "Microsoft C runtime and Windows SDK libraries",
-      "summary": "Microsoft C runtime and Windows SDK libraries, with verified settings for the compiler Tessera uses. Downloads missing libraries with xwin.",
-      "size": "about 700 MB",
+      "name": "Microsoft C++ Build Tools and Windows SDK",
+      "summary": "Registered Windows installations, usable by Tessera and other apps. Windows asks for administrator approval; setup runs quietly.",
+      "size": "Several GB; existing installations are reused",
       "platforms": [
         "windows"
       ],
@@ -144,18 +178,8 @@
               }
             },
             {
-              "file": {
-                "windows": "{tools}/msvc/crt/lib/x86_64/libcmt.lib"
-              }
-            },
-            {
-              "file": {
-                "windows": "{tools}/msvc/sdk/lib/um/x86_64/kernel32.lib"
-              }
-            },
-            {
-              "file": {
-                "windows": "{tools}/msvc/sdk/lib/ucrt/x86_64/ucrt.lib"
+              "visualStudio": {
+                "windows": "Microsoft.VisualStudio.Component.VC.Tools.x86.x64"
               }
             },
             {
@@ -169,23 +193,26 @@
       "install": {
         "windows": [
           {
-            "download": "https://github.com/LazyAlgorithm/Tessera/releases/download/toolchain-2/xwin-windows-x64.zip",
-            "unpack": "{tools}"
+            "download": "https://aka.ms/vs/17/release/vs_BuildTools.exe"
           },
           {
-            "run": "\"{tools}/xwin.exe\" --accept-license --arch x86_64 --cache-dir \"{tools}/xwin-cache\" splat --output \"{tools}/msvc\""
+            "write": "{hub}/installer-logs/README.txt",
+            "text": "Microsoft installer logs are stored in this folder.\n"
           },
           {
-            "delete": "{tools}/xwin-cache"
+            "runAsAdmin": "set \"TEMP={hub}/installer-logs\" && set \"TMP={hub}/installer-logs\" && \"{hub}/downloads/vs_BuildTools.exe\" --quiet --wait --norestart --nocache --add Microsoft.VisualStudio.Workload.VCTools --includeRecommended"
           },
           {
-            "write": "{tools}/beef/bin/BeefSettings.toml",
-            "text": "[VisualStudio]\nManuallySet = true\nBin32Path = \"\"\nBin64Path = \"\"\nLib32Paths = []\nLib64Paths = [\"{tools}/msvc/crt/lib/x86_64\", \"{tools}/msvc/sdk/lib/um/x86_64\", \"{tools}/msvc/sdk/lib/ucrt/x86_64\"]\n"
+            "configureMicrosoft": "{tools}/beef/bin/BeefSettings.toml"
+          },
+          {
+            "delete": "{hub}/downloads/vs_BuildTools.exe"
           }
         ]
       },
       "alsoInstall": [
-        "beef"
+        "beef",
+        "vc-runtime"
       ]
     },
     {

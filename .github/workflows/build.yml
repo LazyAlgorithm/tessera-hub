@@ -206,6 +206,7 @@ jobs:
         shell: pwsh
         run: |
           $env:HUB_TEST_EXE = "$env:GITHUB_WORKSPACE/out/TesseraHub-Windows/TesseraHub.exe"
+          $env:HUB_TEST_COMPILER = "$env:GITHUB_WORKSPACE/beef-win/bin/BeefBuild.exe"
           python hub/tools/test_windows_libraries.py
 
       - name: Keep the zip

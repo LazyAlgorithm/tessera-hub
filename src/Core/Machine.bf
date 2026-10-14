@@ -11,6 +11,7 @@ static class Machine
 	[CLink] static extern int32 system(char8* command);
 #if BF_PLATFORM_WINDOWS
 	[CLink] static extern int32 _putenv_s(char8* name, char8* value);
+	[CLink] static extern uint32 GetLastError();
 #else
 	[CLink] static extern int32 setenv(char8* name, char8* value, int32 overwrite);
 #endif
@@ -122,7 +123,7 @@ static class Machine
 	}
 
 	/// Runs a command through the system's shell and waits. Output goes to logPath when given.
-	public static int32 Run(StringView command, StringView logPath = default)
+	public static int32 Run(StringView command, StringView logPath = default, bool administrator = false)
 	{
 		let line = scope String(command);
 		if (!logPath.IsEmpty)
@@ -140,11 +141,16 @@ static class Machine
 		let info = scope System.Diagnostics.ProcessStartInfo();
 		info.SetFileName(comspec);
 		info.SetArguments(scope $"/d /s /c \"{line}\"");
-		info.UseShellExecute = false;
+		info.UseShellExecute = administrator;
+		if (administrator) info.SetVerb("runas");
 		info.CreateNoWindow = true;
 		let process = scope System.Diagnostics.SpawnedProcess();
 		if (process.Start(info) case .Err)
-			return -1;
+		{
+			let error = GetLastError();
+			if (!logPath.IsEmpty) AppendText(logPath, scope $"\nWindows could not start the installer (error {error}).\n");
+			return error != 0 ? (int32)error : -1;
+		}
 		process.WaitFor();
 		return (int32)process.ExitCode;
 #else

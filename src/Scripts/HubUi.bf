@@ -35,6 +35,12 @@ class HubUi : Component
 		Library.Load();
 		if (Application.Instance.HasArg("--dependencycheck"))
 		{
+			if (Application.Instance.HasArg("--configure-windows-libraries"))
+			{
+				let error = scope String();
+				let configured = Dependencies.ConfigureMicrosoft(scope $"{Machine.ToolsFolder}/beef/bin/BeefSettings.toml", error);
+				Console.WriteLine($"CONFIGURE MICROSOFT: {configured} {error}");
+			}
 			for (let dependency in Library.Catalog.Dependencies)
 				Console.WriteLine($"DEPENDENCY CHECK {dependency.id}: {Dependencies.IsFound(dependency)}");
 			return;
