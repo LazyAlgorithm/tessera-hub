@@ -2,26 +2,6 @@
   "version": 1,
   "items": [
     {
-      "id": "ringfall",
-      "kind": "game",
-      "name": "Ringfall",
-      "beta": true,
-      "summary": "Arena shooter: Slayer, King of the Hill, Prop Hunt, Infection and Tag, with bots, online play and a map editor.",
-      "repo": "LazyAlgorithm/ringfall-releases",
-      "assets": {
-        "windows": "Ringfall-Windows.zip",
-        "linux": "Ringfall-Linux.zip"
-      },
-      "run": {
-        "windows": "Ringfall-Windows/Ringfall.exe",
-        "linux": "Ringfall-Linux/Ringfall"
-      },
-      "requires": [],
-      "banner": "UI/banner_ringfall.png",
-      "icon": "UI/icon_ringfall.png",
-      "accent": "#ffc145"
-    },
-    {
       "id": "polystrike",
       "kind": "game",
       "name": "Polystrike",
