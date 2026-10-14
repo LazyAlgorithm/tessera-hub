@@ -179,8 +179,8 @@
               }
             },
             {
-              "command": {
-                "windows": "findstr /L /C:\"ManuallySet = true\" \"{tools}/beef/bin/BeefSettings.toml\" > NUL && findstr /L /C:\"Lib64Paths =\" \"{tools}/beef/bin/BeefSettings.toml\" > NUL && findstr /L /C:\"{tools}/msvc/crt/lib/x86_64\" \"{tools}/beef/bin/BeefSettings.toml\" > NUL && findstr /L /C:\"{tools}/msvc/sdk/lib/um/x86_64\" \"{tools}/beef/bin/BeefSettings.toml\" > NUL && findstr /L /C:\"{tools}/msvc/sdk/lib/ucrt/x86_64\" \"{tools}/beef/bin/BeefSettings.toml\" > NUL"
+              "beefLibraries": {
+                "windows": "{tools}/beef/bin/BeefSettings.toml"
               }
             }
           ]

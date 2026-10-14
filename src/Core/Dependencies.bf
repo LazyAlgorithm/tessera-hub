@@ -47,6 +47,8 @@ static class Dependencies
 			return true;
 		case .VisualStudio:
 			return HasVisualStudio(value);
+		case .BeefLibraries:
+			return HasBeefLibraries(value);
 		case .All:
 			for (let part in check.parts)
 			{
@@ -55,6 +57,40 @@ static class Dependencies
 			}
 			return check.parts.Count > 0;
 		}
+	}
+
+	/// Checks the managed settings format emitted by the catalog without invoking a shell.
+	static bool HasBeefLibraries(StringView settings)
+	{
+		let text = scope String();
+		if (File.ReadAllText(settings, text) case .Err) return false;
+		bool section = false, manual = false;
+		let paths = scope String();
+		for (let raw in text.Split('\n'))
+		{
+			let line = scope String(raw); line.Trim();
+			if (line.StartsWith("[")) { section = line == "[VisualStudio]"; continue; }
+			if (!section) continue;
+			let equal = line.IndexOf('=');
+			if (equal < 0) continue;
+			let key = scope String(line.Substring(0, equal)); key.Trim();
+			let value = scope String(line.Substring(equal + 1)); value.Trim();
+			if (key == "ManuallySet") manual = value == "true";
+			if (key == "Lib64Paths") paths.Set(value);
+		}
+		if (!manual || paths.IsEmpty) return false;
+		// The emitted one-line TOML string array also has JSON syntax, including escaped backslashes.
+		let directories = SaveNode.FromText(paths);
+		defer delete directories;
+		if (directories == null || directories.kind != .List) return false;
+		for (let library in StringView[3]("libcmt.lib", "kernel32.lib", "ucrt.lib"))
+		{
+			bool found = false;
+			for (let directory in directories.items)
+				if (directory.kind == .String && File.Exists(scope $"{directory.text}/{library}")) found = true;
+			if (!found) return false;
+		}
+		return true;
 	}
 
 	static bool HasLibrary(StringView name)

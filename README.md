@@ -39,7 +39,7 @@ and the engine, `library.json`, `install.log`), and tools in `…/Tessera/toolch
 
 `kind` is `game` or `engine`. `tagPrefix` limits which releases count (the engine's builds are `build-…`).
 `requires` names entries of `dependencies`, each with `found` checks (`file`, `program`, `env`, `command`,
-`libraries`, `visualStudio`, or `all` of several) and per-platform `install` steps (`download` + `unpack`, `run`,
+`libraries`, `visualStudio`, `beefLibraries`, or `all` of several) and per-platform `install` steps (`download` + `unpack`, `run`,
 `packages` for the Linux package managers, `write`, `delete`). `{tools}` in a path is the tools folder.
 
 The banner is 1500 by 600 and fades into the page at the bottom and left; `tools/make_art.py` makes the built-in

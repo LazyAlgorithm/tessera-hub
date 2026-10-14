@@ -143,10 +143,6 @@ jobs:
         with:
           arch: x64
 
-      - name: Check Windows library detection
-        shell: pwsh
-        run: python hub/tools/test_windows_libraries.py
-
       - name: Install build tools
         run: |
           python -m pip install --quiet ninja
@@ -205,6 +201,12 @@ jobs:
           "$GITHUB_WORKSPACE/hub/.github/scripts/version.sh" > ../hub/src/Data/version.txt
           python tools/build_player.py ../hub --platform windows --output ../out/TesseraHub-Windows
           cd ../out && rm -f TesseraHub-Windows/log.txt && 7z a -tzip -mx=9 TesseraHub-Windows.zip TesseraHub-Windows > /dev/null
+
+      - name: Check Windows library detection
+        shell: pwsh
+        run: |
+          $env:HUB_TEST_EXE = "$env:GITHUB_WORKSPACE/out/TesseraHub-Windows/TesseraHub.exe"
+          python hub/tools/test_windows_libraries.py
 
       - name: Keep the zip
         uses: actions/upload-artifact@v4

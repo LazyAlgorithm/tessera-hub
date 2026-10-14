@@ -58,6 +58,8 @@ static class Machine
 		{
 			if (sTools.IsEmpty)
 			{
+				// Isolated fixtures for the opt-in dependency diagnostic; ordinary launches use user data.
+				if (Application.Instance.HasArg("--dependencycheck") && Application.Instance.GetArg("--tools-folder", sTools) && !sTools.IsEmpty) return sTools;
 				UserData(sTools);
 				sTools.Append("/Tessera/toolchain");
 				Directory.CreateDirectory(sTools).IgnoreError();

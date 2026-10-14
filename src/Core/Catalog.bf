@@ -40,7 +40,7 @@ class Catalog
 	/// One check that a tool is present. Any of a dependency's checks passing means it is found.
 	public class Check
 	{
-		public enum Kind { File, Program, Env, Command, Libraries, VisualStudio, All }
+		public enum Kind { File, Program, Env, Command, Libraries, VisualStudio, BeefLibraries, All }
 		public Kind kind;
 		public String value = new .() ~ delete _;
 		public List<String> values = new .() ~ DeleteContainerAndItems!(_);
@@ -241,6 +241,7 @@ class Catalog
 		else if (node["program"] != null) { check.kind = .Program; ForPlatform(node["program"], check.value); }
 		else if (node["env"] != null) { check.kind = .Env; ForPlatform(node["env"], check.value); }
 		else if (node["command"] != null) { check.kind = .Command; ForPlatform(node["command"], check.value); }
+		else if (node["beefLibraries"] != null) { check.kind = .BeefLibraries; ForPlatform(node["beefLibraries"], check.value); }
 		else if (node["visualStudio"] != null) { check.kind = .VisualStudio; ForPlatform(node["visualStudio"], check.value); }
 		else if (node["libraries"] != null)
 		{
