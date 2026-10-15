@@ -23,6 +23,27 @@
       "accent": "#45cdf0"
     },
     {
+      "id": "tumbletoysaviation",
+      "kind": "game",
+      "name": "Tumble Toys: Aviation",
+      "beta": true,
+      "summary": "Toy aircraft, tumbling physics, multiplayer and six game modes across a bedroom, workshop, classroom and outdoor playground.",
+      "repo": "LazyAlgorithm/tumble-toys-aviation-releases",
+      "tagPrefix": "aviation-",
+      "assets": {
+        "windows": "TumbleToysAviation-Windows.zip",
+        "linux": "TumbleToysAviation-Linux.zip"
+      },
+      "run": {
+        "windows": "TumbleToysAviation-Windows/TumbleToysAviation.exe",
+        "linux": "TumbleToysAviation-Linux/TumbleToysAviation"
+      },
+      "requires": [],
+      "banner": "UI/banner_tumbletoysaviation.jpg",
+      "icon": "UI/icon_tumbletoysaviation.png",
+      "accent": "#ef8b2d"
+    },
+    {
       "id": "tessera",
       "kind": "engine",
       "name": "Tessera",
