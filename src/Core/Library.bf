@@ -203,9 +203,8 @@ static class Library
 				errors[new .(item.id)] = new .(message);
 			}
 		}
-		// The Hub itself.
+		// Development installs can upgrade to a published Hub too.
 		Release hub = null;
-		if (HubVersion != "dev")
 		{
 			let hubItem = scope Catalog.Item();
 			hubItem.repo.Set(HubRepo);
