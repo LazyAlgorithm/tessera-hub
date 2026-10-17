@@ -44,6 +44,27 @@
       "accent": "#ef8b2d"
     },
     {
+      "id": "zombie-tag",
+      "kind": "game",
+      "name": "Zombie Tag",
+      "beta": true,
+      "summary": "Find the key and escape a dark, furnished house before the infected catch you. First-person Steam multiplayer, generated houses, NPCs and proximity voice.",
+      "repo": "LazyAlgorithm/zombie-tag-releases",
+      "tagPrefix": "zombie-tag-",
+      "assets": {
+        "windows": "ZombieTag-Windows.zip",
+        "linux": "ZombieTag-Linux.zip"
+      },
+      "run": {
+        "windows": "ZombieTag-Windows/ZombieTag.exe",
+        "linux": "ZombieTag-Linux/ZombieTag"
+      },
+      "requires": [],
+      "banner": "https://raw.githubusercontent.com/LazyAlgorithm/zombie-tag-releases/main/artwork/cover.png",
+      "icon": "https://raw.githubusercontent.com/LazyAlgorithm/zombie-tag-releases/main/artwork/icon.png",
+      "accent": "#c89b63"
+    },
+    {
       "id": "tessera",
       "kind": "engine",
       "name": "Tessera",
