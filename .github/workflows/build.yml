@@ -3,7 +3,7 @@
 #
 # When it runs:
 #   - a version tag is pushed (git tag v1.0 && git push origin v1.0): a release named after the tag;
-#   - a push to the `release` branch: a pre-release (a beta) named after the date and commit;
+#   - a push to `main`, `dev`, or `release`: a pre-release (a beta) named after the date and commit;
 #   - by hand, from the Actions tab (Run workflow).
 #
 # The Hub is told which release it is (src/Data/version.txt, from .github/scripts/version.sh), so that it can tell
@@ -13,7 +13,7 @@ name: Build and release
 on:
   push:
     tags: ['v*']
-    branches: [release]
+    branches: [main, dev, release]
   workflow_dispatch:
     inputs:
       tessera_ref:

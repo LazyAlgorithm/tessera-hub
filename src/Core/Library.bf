@@ -60,11 +60,77 @@ static class Library
 			if (!version.IsEmpty)
 				HubVersion.Set(version);
 		}
-		let catalog = scope String();
-		if (Assets.ReadText("Data/catalog.json", catalog))
-			Catalog.Parse(catalog, scope .());
+		ReadOfflineCatalog(Catalog);
+		PrepareArt(Catalog, false);
 		LoadState();
 		CleanUpAfterSelfUpdate();
+	}
+
+	static void ReadOfflineCatalog(Catalog catalog)
+	{
+		let text = scope String();
+		if (File.ReadAllText(scope $"{Machine.DataFolder}/catalog.json", text) case .Ok)
+			if (catalog.Parse(text, scope .()) && catalog.Items.Count > 0)
+				return;
+		text.Clear();
+		if (Assets.ReadText("Data/catalog.json", text))
+			catalog.Parse(text, scope .());
+	}
+
+	/// Resolve catalog artwork to local files before the UI sees it. Relative paths refer to the catalog's
+	/// GitHub src directory, so adding an image beside the catalog needs no new Hub build.
+	static void PrepareArt(Catalog catalog, bool online)
+	{
+		for (let item in catalog.Items)
+		{
+			PreparePicture(item.banner, online);
+			PreparePicture(item.icon, online);
+		}
+	}
+
+	static void PreparePicture(String picture, bool online)
+	{
+		if (picture.IsEmpty)
+			return;
+		let original = scope String(picture);
+		let url = scope String();
+		if (picture.StartsWith("https://"))
+			url.Set(picture);
+		else if (picture.StartsWith("UI/"))
+			url.AppendF("https://raw.githubusercontent.com/LazyAlgorithm/tessera-hub/main/src/{}", picture);
+		else
+		{
+			picture.Clear();
+			return;
+		}
+		let sha = scope System.Security.Cryptography.SHA256();
+		sha.Update(.((uint8*)url.Ptr, url.Length));
+		let key = scope String();
+		sha.Finish().ToString(key);
+		let folder = scope $"{Machine.DataFolder}/art";
+		Directory.CreateDirectory(folder).IgnoreError();
+		let file = scope $"{folder}/{key}.png";
+		let temporary = scope $"{file}.part";
+		if (online && Http.Download(url, temporary, scope .()))
+			File.Copy(temporary, file, true).IgnoreError();
+		File.Delete(temporary).IgnoreError();
+		if (File.Exists(file))
+		{
+			// A content-based filename lets the renderer reload changed artwork at the same URL.
+			let content = scope String();
+			if (Task.HashFile(file, content))
+			{
+				let rendered = scope $"{folder}/{content}.png";
+				if (!File.Exists(rendered))
+					File.Copy(file, rendered).IgnoreError();
+				picture.Set(rendered);
+				return;
+			}
+		}
+		// Keep built-in pictures offline; a missing new picture leaves a plain card.
+		let bytes = scope List<uint8>();
+		if (!Assets.ReadBytes(original, bytes))
+			picture.Clear();
 	}
 
 	static void LoadState()
@@ -177,13 +243,12 @@ static class Library
 		let text = scope String();
 		let error = scope String();
 		bool fetched = Http.GetText(CatalogUrl, text, error) && catalog.Parse(text, error) && catalog.Items.Count > 0;
+		if (fetched)
+			File.WriteAllText(scope $"{Machine.DataFolder}/catalog.json", text).IgnoreError();
 		if (!fetched)
-		{
-			// Offline, or the catalog moved: keep using the one the Hub has.
-			text.Clear();
-			Assets.ReadText("Data/catalog.json", text);
-			catalog.Parse(text, error);
-		}
+			ReadOfflineCatalog(catalog);
+		task.SetStatus("Loading game artwork", -1);
+		PrepareArt(catalog, fetched);
 		bool betas = Betas;
 		let latest = new Dictionary<String, Release>();
 		let errors = new Dictionary<String, String>();

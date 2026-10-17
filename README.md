@@ -5,7 +5,8 @@ itself, from their GitHub releases. Nothing needs to be installed to run it: unz
 (`TesseraHub.exe` on Windows).
 
 - **Games and the engine** come from the catalog, `src/Data/catalog.json`. The Hub reads the newest copy from this
-  repository each time it starts (and uses the copy built into it when offline), so adding a game or a tool is an edit
+  repository each time it starts and when checking for updates (and uses the last downloaded copy when offline,
+  falling back to the built-in copy on first launch), so adding a game or a tool is an edit
   to that file, with no new Hub needed.
 - **Updates.** The Hub checks when it starts and from Settings. An installed game with a newer release shows
   *Update available*. Downloads are checked against the release's `SHA256SUMS.txt`, unpacked beside the installed
@@ -42,6 +43,17 @@ and the engine, `library.json`, `install.log`), and tools in `…/Tessera/toolch
 `libraries`, `visualStudio`, `beefLibraries`, or `all` of several) and per-platform `install` steps (`download` + `unpack`, `run`,
 `packages` for the Linux package managers, `write`, `delete`). `{tools}` in a path is the tools folder.
 
+To add a game, add an entry to this JSON file on GitHub's `main` branch and upload its banner and icon under
+`src/UI/`. Existing Hubs will discover the entry, description, and pictures on their next update check; no Hub
+rebuild is required after installing a version with remote artwork support. The catalog is the list of games to
+offer; unrelated GitHub repositories are not automatically listed.
+
+`banner` and `icon` accept `UI/...` paths relative to this repository's `src/` directory or full HTTPS image URLs
+(including raw GitHub files in a game's own repository). Pictures download in the background with the catalog,
+are cached under the Hub's data folder, and refresh even when their URL stays the same. If a download fails,
+the previous picture or a built-in picture is used; missing artwork leaves a plain card. The last successful
+catalog and downloaded pictures remain available offline. Descriptions come from each entry's `summary`.
+
 The banner is 1500 by 600 and fades into the page at the bottom and left; `tools/make_art.py` makes the built-in
 ones.
 
@@ -55,7 +67,7 @@ python3 tools/build_player.py ../tessera-hub --output ../TesseraHub-Linux
 python3 tools/build_player.py ../tessera-hub --platform windows --output ../TesseraHub-Windows
 ```
 
-Pushing to the `release` branch (or a `v*` tag) builds both on GitHub Actions and publishes a release here, which
+Pushing to `main`, `dev`, or `release` (or a `v*` tag) builds both on GitHub Actions and publishes a release here, which
 installed Hubs then update to.
 
 ## Layout

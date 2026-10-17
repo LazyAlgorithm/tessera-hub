@@ -229,8 +229,7 @@ class HubUi : Component
 			mBanner.SetStyle("height", scope $"{height:0}");
 			mBody.SetStyle("top", scope $"{Math.Max(height - 170, 150):0}");
 		}
-		if (!item.banner.IsEmpty)
-			mBanner.attributes.Set("src", item.banner);
+		mBanner.attributes.Set("src", item.banner);
 
 		Find("title").SetText(item.name);
 		Find("badge").visible = item.beta;

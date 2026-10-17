@@ -144,12 +144,19 @@ class Catalog
 			error.Set("The catalog is not valid JSON.");
 			return false;
 		}
+		if (root["items"] == null || root["items"].kind != .List)
+		{
+			error.Set("The catalog has no game list.");
+			return false;
+		}
 		ClearAndDeleteItems!(Items);
 		ClearAndDeleteItems!(Dependencies);
 		let items = root["items"];
 		for (int i < (items != null ? items.Count : 0))
 		{
 			let node = items.items[i];
+			if (node.kind != .Object)
+				continue;
 			let item = new Item();
 			Text(node, "id", item.id);
 			Text(node, "kind", item.kind);
