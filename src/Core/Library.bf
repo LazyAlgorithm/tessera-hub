@@ -242,7 +242,8 @@ static class Library
 		let catalog = new Catalog();
 		let text = scope String();
 		let error = scope String();
-		bool fetched = Http.GetText(CatalogUrl, text, error) && catalog.Parse(text, error) && catalog.Items.Count > 0;
+		let catalogUrl = scope $"{CatalogUrl}?refresh={DateTime.UtcNow.Ticks}";
+		bool fetched = Http.GetText(catalogUrl, text, error) && catalog.Parse(text, error) && catalog.Items.Count > 0;
 		if (fetched)
 			File.WriteAllText(scope $"{Machine.DataFolder}/catalog.json", text).IgnoreError();
 		if (!fetched)
