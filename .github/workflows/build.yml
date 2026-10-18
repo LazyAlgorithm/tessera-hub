@@ -99,11 +99,24 @@ jobs:
           python3 tools/build_player.py ../hub --platform linux --output ../out/TesseraHub-Linux
           cd ../out && rm -f TesseraHub-Linux/log.txt && zip -qr9 TesseraHub-Linux.zip TesseraHub-Linux
 
-      - name: Keep the zip
+      - name: Keep the zip for a non-publishing build
+        if: github.event_name != 'push' && !inputs.publish
         uses: actions/upload-artifact@v4
         with:
           name: TesseraHub-Linux
           path: out/TesseraHub-Linux.zip
+
+      - name: Stage the zip in a draft release
+        if: github.event_name == 'push' || inputs.publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$(hub/.github/scripts/version.sh)"
+          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release create "$tag" --repo "$GITHUB_REPOSITORY" --draft --prerelease --target "$GITHUB_SHA" --title "Tessera Hub $tag" --notes 'Build in progress; published after both platform jobs pass.' || gh release view "$tag" --repo "$GITHUB_REPOSITORY"
+          fi
+          test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)" = true
+          gh release upload "$tag" "out/TesseraHub-Linux.zip" --repo "$GITHUB_REPOSITORY" --clobber
 
   windows:
     runs-on: windows-2022
@@ -209,11 +222,24 @@ jobs:
           $env:HUB_TEST_COMPILER = "$env:GITHUB_WORKSPACE/beef-win/bin/BeefBuild.exe"
           python hub/tools/test_windows_libraries.py
 
-      - name: Keep the zip
+      - name: Keep the zip for a non-publishing build
+        if: github.event_name != 'push' && !inputs.publish
         uses: actions/upload-artifact@v4
         with:
           name: TesseraHub-Windows
           path: out/TesseraHub-Windows.zip
+
+      - name: Stage the zip in a draft release
+        if: github.event_name == 'push' || inputs.publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="$(hub/.github/scripts/version.sh)"
+          if ! gh release view "$tag" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            gh release create "$tag" --repo "$GITHUB_REPOSITORY" --draft --prerelease --target "$GITHUB_SHA" --title "Tessera Hub $tag" --notes 'Build in progress; published after both platform jobs pass.' || gh release view "$tag" --repo "$GITHUB_REPOSITORY"
+          fi
+          test "$(gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)" = true
+          gh release upload "$tag" "out/TesseraHub-Windows.zip" --repo "$GITHUB_REPOSITORY" --clobber
 
   release:
     needs: [linux, windows]
@@ -225,19 +251,16 @@ jobs:
         with:
           path: hub
 
-      - name: Get the zips
-        uses: actions/download-artifact@v4
-        with:
-          path: out
-          merge-multiple: true
-
       - name: Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag="$(hub/.github/scripts/version.sh)"
           if [ "${GITHUB_REF_TYPE}" = "tag" ]; then title="Tessera Hub ${tag}"; pre=""; else title="Tessera Hub beta $(date -u +%Y-%m-%d) ($(git -C hub rev-parse --short HEAD))"; pre="--prerelease"; fi
-          gh release delete "$tag" --repo "$GITHUB_REPOSITORY" --yes --cleanup-tag 2>/dev/null || true
+          mkdir -p out
+          gh release download "$tag" --repo "$GITHUB_REPOSITORY" --pattern 'TesseraHub-*.zip' --dir out
+          test -s out/TesseraHub-Windows.zip
+          test -s out/TesseraHub-Linux.zip
           notes="Tessera Hub installs and updates games made with Tessera, and the engine itself.
 
           - **TesseraHub-Windows.zip**: unzip and run TesseraHub.exe. Needs a graphics driver with Vulkan.
@@ -245,4 +268,5 @@ jobs:
 
           Once installed, the Hub updates itself."
           (cd out && sha256sum *.zip > SHA256SUMS.txt && cat SHA256SUMS.txt)
-          gh release create "$tag" out/*.zip out/SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "$title" --notes "$notes" $pre
+          gh release upload "$tag" out/SHA256SUMS.txt --repo "$GITHUB_REPOSITORY" --clobber
+          gh release edit "$tag" --draft=false --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "$title" --notes "$notes" $pre

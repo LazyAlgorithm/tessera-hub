@@ -27,7 +27,7 @@
       "kind": "game",
       "name": "Tumble Toys: Aviation",
       "beta": true,
-      "summary": "Toy aircraft, tumbling physics, multiplayer and six game modes across a bedroom, workshop, classroom and outdoor playground.",
+      "summary": "Fly toy planes with AI pilots, multiplayer and six game modes across four maps. Hold Shift or Left Trigger for an energy shield that lets you knock props over without crashing.",
       "repo": "LazyAlgorithm/tumble-toys-aviation-releases",
       "tagPrefix": "aviation-",
       "assets": {
