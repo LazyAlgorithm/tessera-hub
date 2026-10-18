@@ -108,8 +108,8 @@
         "linux": "BistroBlitz-Linux/BistroBlitz"
       },
       "requires": [],
-      "banner": "UI/banner_tessera.png",
-      "icon": "UI/icon_tessera.png",
+      "banner": "https://raw.githubusercontent.com/LazyAlgorithm/bistro-blitz-releases/main/artwork/hub-cover.jpg",
+      "icon": "https://raw.githubusercontent.com/LazyAlgorithm/bistro-blitz-releases/main/artwork/hub-icon.jpg",
       "accent": "#e06030"
     }
   ],
