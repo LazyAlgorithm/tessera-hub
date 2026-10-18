@@ -90,6 +90,27 @@
       "banner": "UI/banner_tessera.png",
       "icon": "UI/icon_tessera.png",
       "accent": "#4cc3f0"
+    },
+    {
+      "id": "bistro-blitz",
+      "kind": "game",
+      "name": "Bistro Blitz",
+      "beta": true,
+      "summary": "Cook burgers, hot dogs and salads against the clock. A cooperative kitchen with solo play, Steam friends and direct LAN multiplayer.",
+      "repo": "LazyAlgorithm/bistro-blitz-releases",
+      "tagPrefix": "bistro-blitz-",
+      "assets": {
+        "windows": "BistroBlitz-Windows.zip",
+        "linux": "BistroBlitz-Linux.zip"
+      },
+      "run": {
+        "windows": "BistroBlitz-Windows/BistroBlitz.exe",
+        "linux": "BistroBlitz-Linux/BistroBlitz"
+      },
+      "requires": [],
+      "banner": "UI/banner_tessera.png",
+      "icon": "UI/icon_tessera.png",
+      "accent": "#e06030"
     }
   ],
   "dependencies": [
