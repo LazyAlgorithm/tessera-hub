@@ -27,7 +27,7 @@
       "kind": "game",
       "name": "Tumble Toys: Aviation",
       "beta": true,
-      "summary": "Fly toy planes with AI pilots, multiplayer and six game modes across five rooms. Create maps in the in-game editor with eight Synty prop packs and custom models, then share them with other players.",
+      "summary": "Fly toy planes with AI pilots, multiplayer and six game modes across five rooms. Create maps with controller-friendly editor panels, test fly in place, and keep your maps across updates.",
       "repo": "LazyAlgorithm/tumble-toys-aviation-releases",
       "tagPrefix": "aviation-",
       "assets": {
